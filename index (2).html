@@ -1,0 +1,89 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>POH - Super Ramen Panda</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      background: url('https://source.unsplash.com/1600x900/?ramen') no-repeat center center;
+      background-size: cover;
+      font-family: 'Arial', sans-serif;
+      color: white;
+      text-align: center;
+      padding: 2rem;
+    }
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    .btn {
+      font-size: 1.5rem;
+      padding: 1rem 2rem;
+      background: limegreen;
+      border: none;
+      border-radius: 10px;
+      margin: 1rem;
+      cursor: pointer;
+    }
+    #response {
+      margin-top: 2rem;
+      font-size: 1.25rem;
+      background: rgba(0,0,0,0.6);
+      padding: 1rem;
+      border-radius: 10px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <h1>POH is Listening</h1>
+  <button class="btn" onclick="startPOH()">Touch to Speak</button>
+  <button class="btn" onclick="stopPOH()">Stop Talking</button>
+  <div id="response">POH is ready to chat!</div>
+
+  <script>
+    let recognition;
+    let sessionId = Date.now().toString();
+
+    function startPOH() {
+      if (recognition) recognition.abort();
+      recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = 'en-IN';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.onresult = async function(event) {
+        const spoken = event.results[0][0].transcript;
+        document.getElementById("response").innerText = "You said: " + spoken;
+
+        const res = await fetch("https://17608489-8a77-49a6-8e18-7b2f654333f3-00-101cyqgv3ld53.pike.replit.dev/talk", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: spoken, sessionId: sessionId })
+        });
+
+        const data = await res.json();
+        const reply = data.reply;
+
+        const utter = new SpeechSynthesisUtterance(reply);
+        utter.lang = "en-IN";
+        speechSynthesis.speak(utter);
+        document.getElementById("response").innerText = "POH: " + reply;
+      };
+
+      recognition.onerror = () => {
+        document.getElementById("response").innerText = "Didn't catch that. Tap to speak again.";
+      };
+
+      recognition.start();
+    }
+
+    function stopPOH() {
+      if (speechSynthesis.speaking) speechSynthesis.cancel();
+      document.getElementById("response").innerText = "POH paused. Tap to continue.";
+    }
+  </script>
+</body>
+</html>
