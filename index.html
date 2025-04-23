@@ -58,7 +58,7 @@
         const spoken = event.results[0][0].transcript;
         document.getElementById("response").innerText = "You said: " + spoken;
 
-        const res = await fetch("https://17608489-8a77-49a6-8e18-7b2f654333f3-00-101cyqgv3ld53.pike.replit.dev/talk", {
+        const res = await fetch("https://17608489-8a77-49a6-8e18-7b2f654333f3-00-101cyqgv3ld53.pike.replit.dev/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: spoken, sessionId: sessionId })
